@@ -34,9 +34,9 @@ def get_card_candidates(image):
 
     canny  = cv2.Canny(image,100,300)
     gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-    cv2.imshow('gray',gray)
-    cv2.waitKey(0)
-    _, contours, _ = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    # cv2.imshow('gray',gray)
+    # cv2.waitKey(0)
+    contours, _ = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     i = 1
     for contour in contours:
         (x,y,w,h) = cv2.boundingRect(contour)
@@ -44,18 +44,14 @@ def get_card_candidates(image):
         # if w <10 or h <30 or w >100 or h>100:
         #     continue
         cv2.rectangle(image, (x,y), (x+w,y+h), (255, 0, 0), 1)
-        crop_img = image[y:y+h, x:x+w]
+        crop_img = gray[y:y+h, x:x+w]
         name = "rect" + str(i) + ".jpg"
         i = i+1
         cv2.imwrite(name,crop_img)
 
-
-
-    cv2.imshow("sample",canny)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
-
-
+    # cv2.imshow("sample",canny)
+    # cv2.waitKey(0)
+    # cv2.destroyAllWindows()
 
 def get_string(img_path):
     # Read image using opencv
@@ -92,9 +88,27 @@ def get_string(img_path):
     result = pytesseract.image_to_string(img,  config='--psm 6')
     return result
 
+def generate_data(direcotry_input,directory_output):
+    from keras.preprocessing.image import ImageDataGenerator
+    train_datagen = ImageDataGenerator(
+        width_shift_range=0.2,
+        height_shift_range=0.05,
+        shear_range=0.2,
+        horizontal_flip=False)
+    i = 0
+    for batch in train_datagen.flow_from_directory(directory=direcotry_input, batch_size=1, save_to_dir=directory_output,target_size=(30,30), save_format='png'):
+        i+=1
+        if i>200:
+            break
 
-print(get_string("sample-data/num_sample7_2.png"))
 
+generate_data("number_model","numbers_generated")
+
+
+# print(get_string("sample-data/num_sample7.png"))
+
+# image = cv2.imread("sample-data/num_sample7.png")
+# get_card_candidates(image)
 # image  = cv2.imread("sample-data/num_sample7.png")
 # get_card_candidates(image)
 # gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
