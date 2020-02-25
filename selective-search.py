@@ -89,35 +89,55 @@ def get_string(img_path):
     return result
 
 def generate_data(direcotry_input,directory_output):
+
     from keras.preprocessing.image import ImageDataGenerator
     train_datagen = ImageDataGenerator(
-        width_shift_range=0.2,
-        height_shift_range=0.05,
+        width_shift_range=0.3,
+        height_shift_range=0.2,
         shear_range=0.2,
-        horizontal_flip=False)
+        horizontal_flip=False,rotation_range=0.2,zoom_range=0.3)
     i = 0
     for batch in train_datagen.flow_from_directory(directory=direcotry_input, batch_size=1, save_to_dir=directory_output,target_size=(30,30), save_format='png'):
         i+=1
-        if i>200:
+        if i>4000:
             break
+    
+    import os
+    import shutil
+    for item in os.listdir(direcotry_input):
+        new_dir = directory_output + "/" + item
+        if not os.path.exists(new_dir):
+            os.makedirs(new_dir)
+        prefix = "_" + item + "_"
+        prefixed = [filename for filename in os.listdir(directory_output) if filename.startswith(prefix)]
+        for filename in prefixed:
+            shutil.copy(directory_output + "/" + filename, new_dir)
 
 
+def add_background():
+    file = "number_model/b/b.jpg"
+    s_img = cv2.imread(file)
+    print(s_img.shape)
+    h = s_img.shape[0] + 50
+    w = s_img.shape[1] + 50
+
+    l_img = np.zeros((h,w,s_img.shape[2]),np.int)
+    cv2.imwrite("big.jpg",l_img)
+    l_img = cv2.imread("big.jpg")
+    x_offset=y_offset=25
+    l_img[y_offset:y_offset+s_img.shape[0], x_offset:x_offset+s_img.shape[1]] = s_img
+
+    cv2.imwrite(file,l_img)
+    cv2.imshow("big",l_img)
+    cv2.waitKey(0)
+    cv2.destroyAllWindows()
+
+
+# add_background()
 generate_data("number_model","numbers_generated")
 
 
-# print(get_string("sample-data/num_sample7.png"))
 
-# image = cv2.imread("sample-data/num_sample7.png")
-# get_card_candidates(image)
-# image  = cv2.imread("sample-data/num_sample7.png")
-# get_card_candidates(image)
-# gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-# text = pytesseract.image_to_string(gray, config='--psm 6')
-# print(text)
-# image = cv2.imread("bet.png")
-# cv2.imshow("sample",image)
-# cv2.waitKey(0)
-# cv2.destroyAllWindows()
 
 
 
