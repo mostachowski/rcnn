@@ -17,8 +17,8 @@ def get_model_for_numbers(model_path="", weights_path=""):
     if len(model_path) == 0 and len(weights_path) == 0:
         num_classes = 13
         convolutions = 32
-        img_rows = 60   
-        img_cols = 60
+        img_rows = 32   
+        img_cols = 32
         input_shape = (img_rows,img_cols,1) 
 
         model =  Sequential()
@@ -52,7 +52,7 @@ def get_model_for_numbers(model_path="", weights_path=""):
 
 def train_model(model, data_path, save_model_path, save_weights_path, num_classes, img_rows,img_cols):
     batch_size = 20
-    epochs = 20
+    epochs = 15
     x_train,y_train, x_test, y_test  = getData(data_path)
     print(x_train)
     print(x_train.shape)
@@ -79,7 +79,7 @@ def read_file_as_numpy(filename):
 
     pil_imgray = pill_im.convert('L')  
     res = np.array(pil_imgray)
-    res.resize((60,60))
+    # res.resize((60,60))
     return res
 
 # Prepare data to train and test. It reads given directory and assums that subdirectories will be the class names

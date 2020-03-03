@@ -9,7 +9,7 @@ def generate_data(direcotry_input,directory_output):
         shear_range=0.2,
         horizontal_flip=False,rotation_range=0.2,zoom_range=0.3)
     i = 0
-    for batch in train_datagen.flow_from_directory(directory=direcotry_input, batch_size=1, save_to_dir=directory_output,target_size=(30,30), save_format='png'):
+    for batch in train_datagen.flow_from_directory(directory=direcotry_input, batch_size=1, save_to_dir=directory_output,target_size=(32,32), save_format='png'):
         i+=1
         if i>4000:
             break

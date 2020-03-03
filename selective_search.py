@@ -34,24 +34,42 @@ def get_candidates(image):
 
     canny  = cv2.Canny(image,100,300)
     gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-    # cv2.imshow('gray',gray)
-    # cv2.waitKey(0)
+    thresh = 200
+    black_image = cv2.threshold(gray, thresh, 255, cv2.THRESH_BINARY)[1]
     contours, _ = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     i = 1
     candindates = list()
     for contour in contours:
         (x,y,w,h) = cv2.boundingRect(contour)
+        offset= 1
+        if x + w + offset <=canny.shape[1]:
+            w= w+offset
+        if y + w < canny.shape[0]:
+            h = h+offset
+        if (x>0):
+            x =x-offset
+            w = w + offset
+        if (y>0):    
+            y = y -offset
+            h = h + offset
         ratio = h/w
-        if w >55 or h >55:
+        if w >30 or h >30:
             continue
-        cv2.rectangle(image, (x,y), (x+w,y+h), (255, 0, 0), 1)
-        crop_img = gray[y:y+h, x:x+w]
+        
+        candidate = np.zeros(shape=[32, 32, 1], dtype=np.uint8)
+        crop_img = black_image[y:y+h, x:x+w]
+        crop_img = crop_img.reshape(crop_img.shape[0],crop_img.shape[1],1)
+
+        y_offset = int((32 - crop_img.shape[0]) /2)
+        x_offset = int((32 - crop_img.shape[1]) /2)
+        candidate[y_offset:y_offset+crop_img.shape[0], x_offset:x_offset+crop_img.shape[1]] = crop_img
+
         name = "rect" + str(i) + ".jpg"
         i = i+1
-        cv2.imwrite(name,crop_img)
+        cv2.imwrite(name,candidate)
 
 
-        candindates.append(crop_img)
+        candindates.append(candidate)
     return candindates
 
 
