@@ -37,10 +37,15 @@ def get_candidates(image):
     thresh = 200
     black_image = cv2.threshold(gray, thresh, 255, cv2.THRESH_BINARY)[1]
     contours, _ = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    
+    boundingBoxes= [cv2.boundingRect(c) for c in contours]
+    
+    boundingBoxes =sorted(boundingBoxes, key=lambda x: x[0])
+
     i = 1
     candindates = list()
-    for contour in contours:
-        (x,y,w,h) = cv2.boundingRect(contour)
+    for (x,y,w,h) in boundingBoxes:
+        print("x,y,w,h:(",x,",",y,",",w,",",h,")")
         offset= 1
         if x + w + offset <=canny.shape[1]:
             w= w+offset
