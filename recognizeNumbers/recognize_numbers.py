@@ -15,7 +15,7 @@ def convertPredictionsToNumber(predictions):
         return float(result)
     return None
 
-def GetNumber(image)
+def getNumber(image):
     # image = cv2.imread("sample-data/num_sample1.png") ##sample-data/num_sample2_2.png
     candidates = get_candidates(image)
 
@@ -35,8 +35,10 @@ def GetNumber(image)
         predictions.append(prediction)
         np.set_printoptions(formatter={'float_kind':'{:f}'.format})
 
-    return convertPredictionsToNumber(predictions))
+    return convertPredictionsToNumber(predictions)
 
+# image = cv2.imread("sample-data/num_sample1.png") ##sample-data/num_sample2_2.png
+# print (getNumber(image))
 
 
 
