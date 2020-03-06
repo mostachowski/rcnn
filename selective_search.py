@@ -28,6 +28,16 @@ def get_iou(bb1, bb2):
     assert iou <= 1.0
     return iou
 
+def shapeInsideOther(contour, boundingBoxesCandidates):
+    x= contour[0]
+    y = contour[1]
+    w=contour[2]
+    h=contour[3]
+    for (x_1,y_1,w_1,h_1) in boundingBoxesCandidates:
+        if (x_1 <=x and y_1 <=y and (w_1+x_1) >=(w+x) and (h_1+y_1)>=(h+y)):
+            return True
+    return False
+
 def get_candidates(image):
     train_images=[]
     train_labels=[]
@@ -36,7 +46,7 @@ def get_candidates(image):
     gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
     thresh = 200
     black_image = cv2.threshold(gray, thresh, 255, cv2.THRESH_BINARY)[1]
-    contours, _ = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    _,contours, _ = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
     boundingBoxes= [cv2.boundingRect(c) for c in contours]
     
@@ -44,7 +54,11 @@ def get_candidates(image):
 
     i = 1
     candindates = list()
+    boundingBoxesCandidates = list()
     for (x,y,w,h) in boundingBoxes:
+        if shapeInsideOther((x,y,w,h), boundingBoxesCandidates):
+            continue
+        boundingBoxesCandidates.append((x,y,w,h))
         print("x,y,w,h:(",x,",",y,",",w,",",h,")")
         offset= 1
         if x + w + offset <=canny.shape[1]:
