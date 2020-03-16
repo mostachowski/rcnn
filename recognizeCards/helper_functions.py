@@ -4,13 +4,14 @@ import glob
 import os
 from random import shuffle
 from sklearn.model_selection import train_test_split
-from PokerDto import Figure,Color, Card
-from Image_helper import CropImage
+# from PokerDto import Figure,Color, Card
 import TablePositions6Max
 from find_convex import get_candidateImages
 import cv2
-from PokerDto import *
+from PokerDto import Color,Card,Figure,Player
 import pytesseract
+from Image_helper import CropImage
+
 
 def get_string_from_image(img):
     # img = cv2.imread(img_path)
@@ -39,7 +40,7 @@ def get_string_from_image(img):
     img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     
     cv2.imwrite("card_back_processed.png", img)
-    result = pytesseract.image_to_string(img, lang="eng", config='-psm 6')
+    result = pytesseract.image_to_string(img, lang="eng", config='--psm 6')
     return result
 
 def read_file_as_numpy(filename):
@@ -169,7 +170,7 @@ def recognize_cards_in_picture(model, picture):
     sample = rgb2gray(picture).reshape(1,img_rows, img_cols, 1)
     result = model.predict(sample)
     y_class = result.argmax()
-    if y_class <13 and result[0][y_class] > 0.98:  # classes 0-12 are cards 
+    if y_class <13  and result[0][y_class] > 0.98 :  #   classes 0-12 are cards 
         color = get_card_color(picture) 
         return Card(color=color, figure=convert_numer_to_class(y_class))
     return None
@@ -178,21 +179,23 @@ def recognize_cards_in_picture(model, picture):
 def GetPlayerIfInHand(model,picture, rectangle, position):
     img_rows = 30
     img_cols = 30
-    result  = None
+    result = None
     cardBack1 = CropImage(picture, rectangle)
-    cv2.imwrite("card_back_candidate.png", cardBack1)
-
+    # import random
+    # name = str(random.randint(1,1000)),"test.jpg"
+    # cv2.imwrite(name,picture)
     candidates = get_candidateImages(cardBack1) 
     cardbackCount = 0
     for candidate in candidates:
-        sample = rgb2gray(candidate).reshape(1,img_rows, img_cols, 1)
-        result = model.predict(sample)
 
-        y_class = result.argmax()
+        sample = rgb2gray(candidate).reshape(1,img_rows, img_cols, 1)
+        prediction = model.predict(sample)
+        
+        y_class = prediction.argmax()
+        print("prediction is: ",y_class)
         if y_class == 13:
             cardbackCount +=1
     if cardbackCount >=2:
         result = Player(position)
         print(get_string_from_image(cardBack1))
     return result
-

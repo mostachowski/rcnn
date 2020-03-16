@@ -1,6 +1,6 @@
 class TablePositions6Max:
     HeroCardsRect = (516, 502, 192, 94)
-    BoardCardsRect = (391, 325, 30, 60)
+    BoardCardsRect = (360, 307, 470, 127)
     PotRect = (324, 351, 155, 22)
 
 
