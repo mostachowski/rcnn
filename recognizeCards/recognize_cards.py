@@ -25,15 +25,30 @@ class CardsRecon:
         result = list()
         i =0
         for candidate in candidates:
-            # i+=1
-            # print("card no",i)
+            i+=1
+            # cv2.imwrite(str(i) + "test.jpg",candidate)
             card  = recognize_cards_in_picture(model=self.model,picture=candidate)
             if card is not None and card.Figure != Figure.Error and card.Color != Color.Error:
-                # situation.Hand.append(card)
-                result.append(card)
-                # print("{0}  {1}".format(card.Figure, card.Color))
+                if  not any(x.Figure == card.Figure and x.Color == card.Color for x in result):               
+                    result.append(card)
+                    # print("{0}  {1}".format(card.Figure, card.Color))
         return result
 
+    def get_classess_from_image(self, image):
+        candidates = fc.get_candidateImages(image) 
+
+        result = list()
+        i =0
+        for candidate in candidates:
+            # i+=1
+            # print("card no",i)
+            res  = predict(model=self.model,picture=candidate)
+            if res[0] <15 and res[1]>0.9:
+                cv2.imwrite("test.jpg",image)
+                cv2.imwrite("candidate.jpg",candidate)
+                result.append(res[0])
+        return result
+        
 # image = cv2.imread("sample.jpg")
 # recon = CardsRecon()
 # recon.recognize_cards(image)

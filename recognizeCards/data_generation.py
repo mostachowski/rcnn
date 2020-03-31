@@ -23,7 +23,6 @@ else:
 train_datagen = ImageDataGenerator(
     width_shift_range=0.2,
     height_shift_range=0.05,
-    shear_range=0.2,
     horizontal_flip=False)
 i =0
 for batch in train_datagen.flow_from_directory(directory='C:/Projekty/nndemo/NNDemo/tensorflow/data/train/x_button', batch_size=1, save_to_dir='C:/Projekty/nndemo/NNDemo/tensorflow/data/generated/x_button',target_size=(30,30), save_format='png'):

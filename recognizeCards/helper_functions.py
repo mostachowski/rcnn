@@ -39,7 +39,7 @@ def get_string_from_image(img):
     # Apply threshold to get image with only b&w (binarization)
     img = cv2.threshold(img, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)[1]
     
-    cv2.imwrite("card_back_processed.png", img)
+    # cv2.imwrite("card_back_processed.png", img)
     result = pytesseract.image_to_string(img, lang="eng", config='--psm 6')
     return result
 
@@ -57,6 +57,7 @@ def getData(direcotry):
     x_train = list()
 
     y_train = list()
+    print("looking for pngs in: ",direcotry)
     for filename in glob.iglob(direcotry + '**/*.png', recursive=True):
         all_files.append(filename)
     shuffle(all_files)
@@ -97,7 +98,9 @@ def convert_class_to_number(filename):
         return 12
     if os.path.basename(filename) == "x_cardback":
         return 13
-    return 14
+    if os.path.basename(filename) == "x_button":
+        return 14
+    return 15
 
 def convert_numer_to_class(number):
     if number < 13:
@@ -105,6 +108,8 @@ def convert_numer_to_class(number):
     return Figure.Error
 
 def rgb2gray(rgb):
+    if rgb.shape[2] ==1:
+        return rgb
     return np.dot(rgb[...,:3], [0.299, 0.587, 0.114])
 
 def get_card_color(picture):
@@ -175,24 +180,34 @@ def recognize_cards_in_picture(model, picture):
         return Card(color=color, figure=convert_numer_to_class(y_class))
     return None
 
+def predict(model,picture):
+    img_rows = 30
+    img_cols = 30
+    import random
+    name = str(random.randint(1,1000)) + "test.jpg"
+    sample = rgb2gray(picture)
+    # cv2.imwrite(name,sample)
+    sample = sample.reshape(1,img_rows, img_cols, 1)
+    result = model.predict(sample)
+    y_class = result.argmax()
+
+    return y_class,result[0][y_class]
+
 
 def GetPlayerIfInHand(model,picture, rectangle, position):
     img_rows = 30
     img_cols = 30
     result = None
     cardBack1 = CropImage(picture, rectangle)
-    # import random
-    # name = str(random.randint(1,1000)),"test.jpg"
-    # cv2.imwrite(name,picture)
+    import random
+    name = str(random.randint(1,1000)) + "test.jpg"
+    # cv2.imwrite(name,cardBack1)
     candidates = get_candidateImages(cardBack1) 
     cardbackCount = 0
     for candidate in candidates:
-
         sample = rgb2gray(candidate).reshape(1,img_rows, img_cols, 1)
         prediction = model.predict(sample)
-        
         y_class = prediction.argmax()
-        print("prediction is: ",y_class)
         if y_class == 13:
             cardbackCount +=1
     if cardbackCount >=2:

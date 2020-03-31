@@ -54,8 +54,6 @@ def train_model(model, data_path, save_model_path, save_weights_path, num_classe
     batch_size = 20
     epochs = 15
     x_train,y_train, x_test, y_test  = getData(data_path)
-    print(x_train)
-    print(x_train.shape)
     x_train = x_train.reshape(x_train.shape[0],img_rows, img_cols, 1)
     y_train = keras.utils.to_categorical(y_train,num_classes)
     x_test = x_test.reshape(x_test.shape[0],img_rows, img_cols, 1)

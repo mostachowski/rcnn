@@ -41,8 +41,6 @@ y_train = to_categorical(y_train)
 y_test = to_categorical(y_test)
 
 
-print("shape:",x_train.shape)
-print("shape y:",y_train.shape)
 # import matplotlib.pyplot as plt 
 # plt.show(plt.imshow(x_train[3][0]))
 
@@ -93,7 +91,6 @@ def get_model(model_path="model_mnist.json", weights_path="mnist_weights.h5"):
 test =cv2.imread("1_test.png")
 test = cv2.cvtColor(test, cv2.COLOR_BGR2GRAY)
 test = cv2.resize(test,(28,28))
-print(test.shape)
 model = get_model()
 resized = test.reshape(1,1,28,28)
 result = model.predict_proba(resized)

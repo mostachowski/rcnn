@@ -7,11 +7,11 @@ import helper_functions
 
 
 
-def get_model(model_path="", weights_path=""):
+def get_model(model_path="", weights_path="", data_path="recognizeCards/data/generated/"):
 
     if len(model_path) == 0 and len(weights_path) == 0:
      
-        num_classes = 15
+        num_classes = 16
         convolutions = 32
         img_rows = 30
         img_cols = 30
@@ -34,7 +34,7 @@ def get_model(model_path="", weights_path=""):
 
 
         model.compile(loss=keras.losses.categorical_crossentropy, optimizer=keras.optimizers.Adadelta(),metrics=['accuracy'])
-        train_model(model,"data/generated/", save_model_path="model.json", save_weights_path="model.h5")
+        train_model(model,data_path, save_model_path="model.json", save_weights_path="model.h5")
     else:
         # load json and create model
         json_file = open(model_path, 'r')
@@ -48,7 +48,7 @@ def get_model(model_path="", weights_path=""):
     return model
 
 def train_model(model, data_path, save_model_path, save_weights_path):
-    num_classes = 15
+    num_classes = 16
     batch_size = 20
     epochs = 20
     img_rows = 30

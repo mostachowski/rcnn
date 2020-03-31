@@ -44,7 +44,7 @@ def get_candidates(image):
 
     canny  = cv2.Canny(image,100,300)
     gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-    thresh = 200
+    thresh = 170
     black_image = cv2.threshold(gray, thresh, 255, cv2.THRESH_BINARY)[1]
     _,contours, _ = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
@@ -59,7 +59,6 @@ def get_candidates(image):
         if shapeInsideOther((x,y,w,h), boundingBoxesCandidates):
             continue
         boundingBoxesCandidates.append((x,y,w,h))
-        print("x,y,w,h:(",x,",",y,",",w,",",h,")")
         offset= 1
         if x + w + offset <=canny.shape[1]:
             w= w+offset
@@ -141,7 +140,6 @@ def add_offset(s_img):
     l_img[y_offset:y_offset+s_img.shape[0], x_offset:x_offset+s_img.shape[1]] = s_img
 
     return l_img
-
 
 # add_background()
 # generate_data("number_model","numbers_generated")
