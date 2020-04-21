@@ -9,6 +9,7 @@ from Image_helper import CropImage
 import TableSituation
 from helper_functions import GetPlayerIfInHand,get_string_from_image
 import find_convex as fc
+from helper_functions import get_string_from_image
 
 # sys.path.append('recognizeCards')
 
@@ -17,9 +18,30 @@ class BoardReader:
         self.card_recognizer = rc.CardsRecon()
         self.number_recognizer = rn.number_recognizer()
 
+        self.hands = {}
+
+    def get_hand_number(self, screen):
+
+        rect = positions.TablePositions6Max.HandNumberRect
+        image = CropImage(screen,rect)
+        # bet = self.number_recognizer.getNumber(image = image)
+        bet = get_string_from_image(image)
+        bet = bet[1:]
+        bet = bet.replace(" ","")
+        return bet
+
+    def _get_situation(self, hand_number):
+        if hand_number in self.hands:
+            return self.hands[hand_number]
+        situation = TableSituation.TableSituation()
+        self.hands[hand_number] = situation
+        return situation
+
     def get_board(self,screen):
 
-        situation = TableSituation.TableSituation()
+        hand_number = self.get_hand_number(screen)
+
+        situation = self._get_situation(hand_number)
         #1 read cards on the board
 
         board_rect = positions.TablePositions6Max.BoardCardsRect
@@ -32,10 +54,13 @@ class BoardReader:
         situation.set_board(cards)
 
         #2 Read hero cards if needed
-        if len(cards) == 0:
+        if len(situation.Hand) == 0:
             rect = positions.TablePositions6Max.HeroCardsRect
             hero_cards_image = CropImage(screen,rect)
-            situation.Hand = self.card_recognizer.recognize_cards(hero_cards_image)
+            cv2.imwrite("hero.jpg",hero_cards_image)
+            situation.set_hand(self.card_recognizer.recognize_cards(hero_cards_image))
+
+
 
         # #3 read pot  (not sure if needed... maybe just increment pot in add_action method)
         # pot_rect = positions.TablePositions6Max.PotRect
@@ -44,7 +69,10 @@ class BoardReader:
         # situation.Pot = self.number_recognizer.getNumber(pot_image)
         # print("pot: ",situation.Pot)
 
-        #4 read actions 
+        #4 read button position
+        situation.ButtonPosition = self.get_button(screen)
+
+        #5 read actions 
         player = GetPlayerIfInHand(self.card_recognizer.model,screen, positions.TablePositions6Max.CardBack1Rect,1)
         if  player is not None:
             situation.PlayersInPlay.append(player)
@@ -52,8 +80,10 @@ class BoardReader:
             rect = positions.TablePositions6Max.Position1BetRect
             image = CropImage(screen,rect)
             bet = self.number_recognizer.getNumber(image = image)
-            cv2.imwrite("pot1.jpg",image)
-            situation.add_action(player_number = 1, bet = bet)
+            # cv2.imwrite("pot1.jpg",image)
+            # print("bet1: ",bet)
+            if bet != None:
+                situation.add_action(player_number = 1, bet = bet)
 
         player = GetPlayerIfInHand(self.card_recognizer.model,screen, positions.TablePositions6Max.CardBack2Rect,2)
         if  player is not None:
@@ -62,8 +92,10 @@ class BoardReader:
             rect = positions.TablePositions6Max.Position2BetRect
             image = CropImage(screen,rect)
             bet = self.number_recognizer.getNumber(image = image)
-            cv2.imwrite("pot2.jpg",image)
-            situation.add_action(player_number = 2, bet = bet)
+            # cv2.imwrite("pot2.jpg",image)
+            # print("bet2: ",bet)
+            if bet != None:
+                situation.add_action(player_number = 2, bet = bet)
 
         player = GetPlayerIfInHand(self.card_recognizer.model,screen, positions.TablePositions6Max.CardBack3Rect,3)
         if  player is not None:
@@ -73,8 +105,10 @@ class BoardReader:
             image = CropImage(screen,rect)
             bet = self.number_recognizer.getNumber(image= image)
             
-            cv2.imwrite("pot3.jpg",image)
-            situation.add_action(player_number = 3, bet = bet)
+            # cv2.imwrite("pot3.jpg",image)
+            # print("bet3: ",bet)
+            if bet != None:
+                situation.add_action(player_number = 3, bet = bet)
 
         player = GetPlayerIfInHand(self.card_recognizer.model,screen, positions.TablePositions6Max.CardBack4Rect,4)
         if  player is not None:
@@ -82,7 +116,9 @@ class BoardReader:
 
             rect = positions.TablePositions6Max.Position4BetRect
             bet = self.number_recognizer.getNumber(image = CropImage(screen,rect))
-            situation.add_action(player_number = 4, bet = bet)
+            # print("bet4: ",bet)
+            if bet != None:
+                situation.add_action(player_number = 4, bet = bet)
 
         player = GetPlayerIfInHand(self.card_recognizer.model, screen, positions.TablePositions6Max.CardBack5Rect,5)
         if  player is not None:
@@ -90,11 +126,13 @@ class BoardReader:
 
             rect = positions.TablePositions6Max.Position5BetRect
             bet = self.number_recognizer.getNumber(image = CropImage(screen,rect))
-            situation.add_action(player_number = 5, bet = bet)
 
-        #5 read button position
-        situation.ButtonPosition = self.get_button(screen)
-        return situation#p
+            # print("bet5: ",bet)
+            if bet != None:
+                situation.add_action(player_number = 5, bet = bet)
+
+
+        return situation
 
 
     def get_button(self,screen):
@@ -143,3 +181,8 @@ class BoardReader:
 # print("button pos: ",recon.get_button(screen=image))
 # recon.get_board(screen = image)
 # # fc.get_candidates(img= image)
+
+if __name__ == "__main__":
+    image = cv2.imread("resized.jpg")
+    recon = BoardReader()  
+    recon.get_hand_number(image) 

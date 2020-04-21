@@ -32,6 +32,7 @@ class CardsRecon:
                 if  not any(x.Figure == card.Figure and x.Color == card.Color for x in result):               
                     result.append(card)
                     # print("{0}  {1}".format(card.Figure, card.Color))
+
         return result
 
     def get_classess_from_image(self, image):
@@ -44,8 +45,8 @@ class CardsRecon:
             # print("card no",i)
             res  = predict(model=self.model,picture=candidate)
             if res[0] <15 and res[1]>0.9:
-                cv2.imwrite("test.jpg",image)
-                cv2.imwrite("candidate.jpg",candidate)
+                # cv2.imwrite("test.jpg",image)
+                # cv2.imwrite("candidate.jpg",candidate)
                 result.append(res[0])
         return result
         

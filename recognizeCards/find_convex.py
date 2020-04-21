@@ -19,8 +19,14 @@ def get_candidateImages(img):
             cv2.CHAIN_APPROX_SIMPLE)
 
     idx =0
+    i = 0
     for c in contours:
         x,y,w,h = cv2.boundingRect(c)
+        # i+=1
+        # name = "roi" + str(i)  +".jpg"
+        # roi = img[y:y+h, x:x+w]
+        # cv2.imwrite(name, roi)
+
         if w>50 and h >50:
             w = 30
             h = 30

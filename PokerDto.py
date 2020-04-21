@@ -29,6 +29,14 @@ class Card:
         self.Figure = figure
         self.Color = color
 
+
+class BetType(Enum):
+    Min = 0
+    FourtyThree = 1
+    SixtySix = 2
+    Pot = 3
+    AllIn = 4
+
 class Position(Enum):
     BU = 0
     SB = 1
@@ -61,31 +69,47 @@ class Decision(Enum):
     CALL = 2
     FOLD = 3
 
+class DecisionClass:
+    def __init__(self,decision = Decision.FOLD, betType = BetType.Min, bet = 0):
+        self.bet = bet
+        self.betType = betType
+        self.decision  = decision
+
+
+class BoardPotential(Enum):
+    Paired = 1
+    TwoCardsFlushDraw = 2
+    ThreeCardsFlushDraw = 3
+    FourCardsFlushDraw = 4
+    StraightDrawTwoInTheRow = 5
+    StraightThreeInARow = 6
+    StraightFourInTheRow = 7
+    StraightOneGap = 8
 
 class HandType(Enum):
     HighCard = 1
-    OverPair = 2
-    TopPair = 3
-    SecondPair = 4
+    SixthPair = 2
+    FifthPair = 3
+    FourthPair = 4
     ThirdPair = 5
-    FourthPair = 6
-    FifthPair = 7
-    SixthPair = 8
-    TwoPairsWithTop = 9
-    TwoPairsWithoutTop = 10
-    Set=11
-    Trips = 12
-    Straight = 13
-    Straight_from_bottom = 13
-    StraightOnBoard = 14
-    Flush = 15
-    NutsFlushWithFourBoardCards = 16
-    NotNutsFlushWithFourBoardCards = 17
-    FullHouse = 18
+    SecondPair = 6
+    TopPair = 7
+    OverPair = 8
+    TwoPairsWithoutTop = 9
+    TwoPairsWithTop = 10
+    Trips = 11
+    Set=12
+    StraightOnBoard = 13
+    Straight_from_bottom = 14
+    Straight = 15
+    NotNutsFlushWithFourBoardCards = 16
+    Flush = 17
+    NutsFlushWithFourBoardCards = 18
     FullHouseOnBoard = 19
-    FourOfKind = 20
+    FullHouse = 20
     FourOfTheKindOnBoard =21
-    StraightFlush = 22
+    FourOfKind = 22
+    StraightFlush = 23
 
 class HandPotential(Enum):
     FlashDraw = 1

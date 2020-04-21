@@ -11,17 +11,28 @@ class screen_watcher:
         self.on_new_screen = rx.subject.Subject()
 
     def screenshot(self, ):
-        print("taking screenshot...")
         hwnd = win32gui.GetForegroundWindow()
         if hwnd:
 
             win32gui.SetForegroundWindow(hwnd)
             x, y, x1, y1 = win32gui.GetClientRect(hwnd)
-            win32gui.ScreenToClient()
+
+            win32gui.ScreenToClient(hwnd,(x,y))
+
             x, y = win32gui.ClientToScreen(hwnd, (x, y))
             x1, y1 = win32gui.ClientToScreen(hwnd, (x1 - x, y1 - y))
+
+            print("x = ",x)
+            print("y = ",y)
+            print("x1 = ", x1)
+            print("y1 = ",y1)
+
+
             im = pyautogui.screenshot(region=(x, y, x1, y1))
-            im = numpy.asarray(im)
+            im = im.convert('RGB')
+
+            im = numpy.array(im)
+            im = im[:, :, ::-1].copy() 
             self.i+=1
             # im.save(str(self.i) + ".jpg","JPEG")
             return im

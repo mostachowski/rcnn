@@ -123,7 +123,7 @@ def get_card_color(picture):
     gs = 0
     bs = 0
 
-    rh = 211
+    rh = 200
     gh = 18
     bh = 39
 
@@ -170,6 +170,10 @@ def get_card_color(picture):
 
 def recognize_cards_in_picture(model, picture):
 
+    import keras.backend.tensorflow_backend as tb
+    tb._SYMBOLIC_SCOPE.value = True
+
+
     img_rows = 30
     img_cols = 30
     sample = rgb2gray(picture).reshape(1,img_rows, img_cols, 1)
@@ -212,5 +216,4 @@ def GetPlayerIfInHand(model,picture, rectangle, position):
             cardbackCount +=1
     if cardbackCount >=2:
         result = Player(position)
-        print(get_string_from_image(cardBack1))
     return result

@@ -16,11 +16,12 @@ class number_recognizer:
             if prediction == 11:
                 result = result + "."
         if len(result)>0:
-            return float(result)
+            if result.replace('.','',1).isdigit():
+                return float(result)
         return None
 
     def getNumber(self, image):
-        # image = cv2.imread("sample-data/num_sample1.png") ##sample-data/num_sample2_2.png
+
         candidates = get_candidates(image)
         t = 0
         predictions = list()

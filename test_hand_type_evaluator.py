@@ -168,6 +168,31 @@ class HandTypeEvaluatorTests(unittest.TestCase):
         hand = self.evaluator.has_straight(situation=self.situation)
         self.assertEqual(hand, HandType.StraightOnBoard)
 
+    def test_should_recognize_straight_from_bottom(self):
+        self.situation.Board.append(Card(figure=Figure.Queen,color=Color.Spade))
+        self.situation.Board.append(Card(figure=Figure.Jack,color=Color.Heart))
+        self.situation.Board.append(Card(figure=Figure.King,color=Color.Diamond))
+        self.situation.Board.append(Card(figure=Figure.Ten,color=Color.Spade))
+
+        self.situation.Hand.append(Card(figure=Figure.Nine,color=Color.Spade))
+        self.situation.Hand.append(Card(figure=Figure.Eight,color=Color.Spade))
+
+        hand = self.evaluator.has_straight(situation=self.situation)
+        self.assertEqual(hand, HandType.Straight_from_bottom)
+
+    def test_should_recognize_straight_with_ace_on_bottom(self):
+        self.situation.Board.append(Card(figure=Figure.Two,color=Color.Spade))
+        self.situation.Board.append(Card(figure=Figure.Three,color=Color.Heart))
+        self.situation.Board.append(Card(figure=Figure.Four,color=Color.Diamond))
+        self.situation.Board.append(Card(figure=Figure.Ten,color=Color.Spade))
+        self.situation.Board.append(Card(figure=Figure.Nine,color=Color.Heart))
+
+        self.situation.Hand.append(Card(figure=Figure.Five,color=Color.Spade))
+        self.situation.Hand.append(Card(figure=Figure.Ace,color=Color.Spade))
+
+        hand = self.evaluator.has_straight(situation=self.situation)
+        self.assertEqual(hand, HandType.Straight_from_bottom)
+
     def test_should_recognize_fullhouse(self):
         self.situation.Board.append(Card(figure=Figure.Queen,color=Color.Spade))
         self.situation.Board.append(Card(figure=Figure.Six,color=Color.Heart))
@@ -207,6 +232,32 @@ class HandTypeEvaluatorTests(unittest.TestCase):
         hand = self.evaluator.has_4_of_the_kind(situation=self.situation)
         self.assertEqual(hand, HandType.FourOfKind)
 
+    def test_should_recognize_quads_when_nuts_on_board(self):
+        self.situation.Board.append(Card(figure=Figure.Six,color=Color.Spade))
+        self.situation.Board.append(Card(figure=Figure.Six,color=Color.Heart))
+        self.situation.Board.append(Card(figure=Figure.Ace,color=Color.Diamond))
+        self.situation.Board.append(Card(figure=Figure.Six,color=Color.Spade))
+        self.situation.Board.append(Card(figure=Figure.Six,color=Color.Club))
+
+        self.situation.Hand.append(Card(figure=Figure.Queen,color=Color.Heart))
+        self.situation.Hand.append(Card(figure=Figure.Queen,color=Color.Spade))
+
+        hand = self.evaluator.has_4_of_the_kind(situation=self.situation)
+        self.assertEqual(hand, HandType.FourOfKind)
+
+    def test_should_recognize_ace_quads_on_board_with_king_kicker(self):
+        self.situation.Board.append(Card(figure=Figure.Ace,color=Color.Spade))
+        self.situation.Board.append(Card(figure=Figure.Ace,color=Color.Heart))
+        self.situation.Board.append(Card(figure=Figure.Ace,color=Color.Diamond))
+        self.situation.Board.append(Card(figure=Figure.King,color=Color.Spade))
+        self.situation.Board.append(Card(figure=Figure.Ace,color=Color.Club))
+
+        self.situation.Hand.append(Card(figure=Figure.Queen,color=Color.Heart))
+        self.situation.Hand.append(Card(figure=Figure.Queen,color=Color.Spade))
+
+        hand = self.evaluator.has_4_of_the_kind(situation=self.situation)
+        self.assertEqual(hand, HandType.FourOfKind)
+
     def test_should_recognize_quads_on_board(self):
         self.situation.Board.append(Card(figure=Figure.Six,color=Color.Diamond))
         self.situation.Board.append(Card(figure=Figure.Six,color=Color.Heart))
@@ -230,5 +281,5 @@ class HandTypeEvaluatorTests(unittest.TestCase):
         self.situation.Hand.append(Card(figure=Figure.Ten,color=Color.Diamond))
         self.situation.Hand.append(Card(figure=Figure.Queen,color=Color.Spade))
 
-        hand = self.evaluator.has_flush_straight(situation=self.situation)
+        hand = self.evaluator.has_straight_flush(situation=self.situation)
         self.assertEqual(hand, HandType.StraightFlush)

@@ -14,23 +14,24 @@ class HandTypeEvaluator:
             if situation.Hand[0].Figure == Figure.Ace:
                 result.append(HandType.OverPair)
             else:
-                heroCard = int(situation.Hand[0].Figure)
-                if heroCard > int(board[0].Figure):
+                heroCard = situation.Hand[0].Figure.value
+                if heroCard > board[0].Figure.value:
                     result.append(HandType.OverPair)
 
-                if heroCard > int(board[1].Figure):
+                if heroCard > board[1].Figure.value:
                 
                     result.append(HandType.SecondPair)
                 
-                if heroCard > int(board[2]).Figure:
+                if heroCard > board[2].Figure.value:
                     result.append(HandType.ThirdPair)
-                if len(board) >3 and heroCard >  int(board[3]).Figure:
+                if len(board) >3 and heroCard >  board[3].Figure.value:
                     result.append(HandType.FourthPair)
-                if len(board) >4 and heroCard >  int(board[4]).Figure:
+                if len(board) >4 and heroCard >  board[4].Figure.value:
                     result.append(HandType.FifthPair)
                 else:
                     if len(board) >4:
                         result.append(HandType.SixthPair)    
+        return result
         
     def is_highest_available(self,heroCard = Figure.Ace, cardlist = list()):
         if heroCard == Figure.Ace:
@@ -64,6 +65,10 @@ class HandTypeEvaluator:
                 return HandType.FourthPair
             if index == 4: 
                 return HandType.FifthPair
+        #check if has pocket pair:
+        result = self.get_hand_type(situation)
+        if len(result) >0:
+            return result[0]
         return None
 
     def has_two_pairs(self,situation=t.TableSituation()):
@@ -101,8 +106,9 @@ class HandTypeEvaluator:
                  card_count[card.Figure.value] = 1
         for key,value in card_count.items():
             if value == 4:
-                if key == situation.Hand[0].Figure.value or key == situation.Hand[1].Figure.value:
+                if key == situation.Hand[0].Figure.value or key == situation.Hand[1].Figure.value or situation.Hand[0].Figure == Figure.Ace or situation.Hand[1].Figure == Figure.Ace or (cards[0].Figure == Figure.Ace and ( cards[1].Figure != Figure.Ace or situation.Hand[0].Figure == Figure.King or situation.Hand[1].Figure == Figure.King or (len(cards) >4 and cards[4].Figure == Figure.King ) )):
                     return HandType.FourOfKind
+                
                 return HandType.FourOfTheKindOnBoard
         return None
 
@@ -163,12 +169,10 @@ class HandTypeEvaluator:
                 color_cards = list(itertools.takewhile(lambda c: c.Color == situation.Hand[1].Color, cards))
                 color_cards = sorted(color_cards,key=lambda x: x.Figure.value, reverse=True)
                 card = situation.Hand[1]
-            if self.is_highest_available(card,color_cards):
+            if self.is_highest_available(card.Figure,color_cards):
                 return HandType.NutsFlushWithFourBoardCards
             color_cards = list(itertools.takewhile(lambda c: c.Color == card.Color, situation.Board))
             color_cards = sorted(color_cards,key=lambda x: x.Figure.value, reverse=False)
-            print ("card.figure: ",card.Figure)
-            print("board figure: ",color_cards[0].Figure)
             if card.Figure.value >color_cards[0].Figure.value:
                 return HandType.NotNutsFlushWithFourBoardCards
             
@@ -229,7 +233,7 @@ class HandTypeEvaluator:
             return HandType.StraightOnBoard
         return None
 
-    def has_flush_straight(self, situation = t.TableSituation()):
+    def has_straight_flush(self, situation = t.TableSituation()):
         flush = self.has_flush(situation=situation)
         if flush == None:
            return None

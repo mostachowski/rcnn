@@ -38,6 +38,57 @@ def shapeInsideOther(contour, boundingBoxesCandidates):
             return True
     return False
 
+
+def _paste_to_32x32_image(crop_img):
+        candidate = np.zeros(shape=[32, 32, 1], dtype=np.uint8)
+
+        y_offset = int((32 - crop_img.shape[0]) /2)
+        x_offset = int((32 - crop_img.shape[1]) /2)
+        candidate[y_offset:y_offset+crop_img.shape[0], x_offset:x_offset+crop_img.shape[1]] = crop_img
+        return candidate
+
+def _split_if_possible(image):
+
+    def _check_if_more_image_on_the_right(image, x):
+        for x1 in range(x, image.shape[0]):
+            for y1 in range (0,image.shape[1]):
+                if image[y1,x1]>0:
+                    return True
+        return False
+
+    result = list()
+    previous_white_exisits = False
+
+    for x1 in range(0,image.shape[0]):
+
+            white_exists = False
+            for y1 in range(0,image.shape[1]):
+                if (image[y1,x1] > 0):
+                    white_exists  = True
+
+            if  not white_exists:
+                if previous_white_exisits:
+
+                    if _check_if_more_image_on_the_right(image,x1):
+                            #create two images and add to result:
+                            sub_image_1 = image[0: image.shape[0], 0:x1]
+                            sub_image_2 = image[0: image.shape[0], x1:image.shape[1]]
+                            
+                            sub_image_1 = _paste_to_32x32_image(sub_image_1)
+                            sub_image_2 = _paste_to_32x32_image(sub_image_2)
+                            result.append(sub_image_1)
+                            result.append(sub_image_2)
+                            return result
+
+                    break
+            else:
+                previous_white_exisits = True
+
+    result.append(image)
+    return result
+
+
+
 def get_candidates(image):
     train_images=[]
     train_labels=[]
@@ -49,13 +100,18 @@ def get_candidates(image):
     _,contours, _ = cv2.findContours(canny, cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     
     boundingBoxes= [cv2.boundingRect(c) for c in contours]
-    
     boundingBoxes =sorted(boundingBoxes, key=lambda x: x[0])
 
     i = 1
+
     candindates = list()
     boundingBoxesCandidates = list()
     for (x,y,w,h) in boundingBoxes:
+
+        # name = "roi" + str(i)  +".jpg"
+        # roi = image[y:y+h, x:x+w]
+        # cv2.imwrite(name, roi)
+
         if shapeInsideOther((x,y,w,h), boundingBoxesCandidates):
             continue
         boundingBoxesCandidates.append((x,y,w,h))
@@ -81,13 +137,13 @@ def get_candidates(image):
         y_offset = int((32 - crop_img.shape[0]) /2)
         x_offset = int((32 - crop_img.shape[1]) /2)
         candidate[y_offset:y_offset+crop_img.shape[0], x_offset:x_offset+crop_img.shape[1]] = crop_img
+        new_candidates = _split_if_possible(candidate)
+        for c in new_candidates:
+            name = "rect" + str(i) + ".jpg"
+            i = i+1
+            cv2.imwrite(name,c)
+            candindates.append(c)
 
-        name = "rect" + str(i) + ".jpg"
-        i = i+1
-        cv2.imwrite(name,candidate)
-
-
-        candindates.append(candidate)
     return candindates
 
 
@@ -141,8 +197,11 @@ def add_offset(s_img):
 
     return l_img
 
-# add_background()
-# generate_data("number_model","numbers_generated")
+
+
+if __name__ == "__main__":
+    image = cv2.imread("sample-data/pot5.jpg")
+    get_candidates(image)
 
 
 
